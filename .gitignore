@@ -1,3 +1,5 @@
 node_modules/
 .userdata/
-config.json
+dist/
+dist-tmp/
+*.log

@@ -49,6 +49,30 @@ async function init() {
   document.getElementById('broadcastInput')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); broadcastAll(); }
   });
+
+  // Help/About 모달
+  const helpModal = document.getElementById('helpModal');
+  document.getElementById('helpBtn')?.addEventListener('click', () => {
+    if (helpModal) helpModal.style.display = 'flex';
+  });
+  document.getElementById('helpCloseBtn')?.addEventListener('click', () => {
+    if (helpModal) helpModal.style.display = 'none';
+  });
+  helpModal?.addEventListener('click', (e) => {
+    if (e.target === helpModal) helpModal.style.display = 'none';
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && helpModal && helpModal.style.display !== 'none') {
+      helpModal.style.display = 'none';
+    }
+  });
+  document.getElementById('helpGithubLink')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const url = config.github || 'https://github.com/godinus123/ClaudeMultiElectron';
+    if (window.electronAPI && window.electronAPI.openExternal) {
+      window.electronAPI.openExternal(url);
+    }
+  });
 }
 
 init();

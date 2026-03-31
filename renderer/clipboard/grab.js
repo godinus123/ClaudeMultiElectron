@@ -14,11 +14,12 @@ import { setClipboardContent } from './bar.js';
 
 export async function grabFromPanel(panelId) {
   const def = appConfig.panels.find(p => p.id === panelId);
+  if (!def) return;
   const text = await extractLatestResponseFromPanel(panelId);
   if (!text) {
     const source = document.getElementById('clipboardSource');
     if (source) source.textContent = `[${panelId} 응답 없음]`;
     return;
   }
-  setClipboardContent(panelId, def?.name || `패널${panelId}`, text.slice(0, 20000));
+  setClipboardContent(panelId, def.name, text.slice(0, 20000));
 }

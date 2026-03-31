@@ -16,7 +16,10 @@ export async function dropToPanel(panelId) {
   if (!text) return;
 
   const grid = document.getElementById('grid');
-  const panel = [...grid.querySelectorAll('.panel')].find(p => p.dataset.id === String(panelId));
+  const hidden = document.getElementById('hiddenPanels');
+  const all = [...grid.querySelectorAll('.panel')];
+  if (hidden) all.push(...hidden.querySelectorAll('.panel'));
+  const panel = all.find(p => p.dataset.id === String(panelId));
   if (!panel) return;
   const wv = panel.querySelector('webview');
   if (!wv) return;

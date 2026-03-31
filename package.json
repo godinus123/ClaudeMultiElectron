@@ -1,14 +1,54 @@
 {
   "name": "claude-multi-electron",
   "version": "1.0.0",
-  "description": "Claude Multi - claude.ai webview 멀티패널 앱",
+  "description": "Claude Multi - claude.ai 멀티패널 데스크톱 앱",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "backup": "node backup-dist.js",
-    "prebuild": "node backup-dist.js"
+    "prebuild": "node backup-dist.js",
+    "build": "electron-builder --win",
+    "build:portable": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.claudemulti.app",
+    "productName": "ClaudeMulti",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "config.json",
+      "renderer/**/*",
+      "!renderer/renderer.js"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "sign": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ClaudeMulti",
+      "artifactName": "install.${ext}"
+    }
   },
   "devDependencies": {
-    "electron": "^41.0.0"
+    "electron": "latest",
+    "electron-builder": "^25.1.8"
   }
 }

@@ -16,16 +16,26 @@ export function renderLegend() {
   const layoutSelect = document.getElementById('layout');
   if (!statusLegend || !appConfig) return;
   const l = layouts[layoutSelect?.value] || layouts['4-quad'];
-  statusLegend.innerHTML = appConfig.panels
-    .slice(0, l.show)
-    .map(p => `<span><span class="dot" style="background:${p.color}"></span>${p.name}</span>`)
-    .join('&nbsp;&nbsp;');
+  statusLegend.innerHTML = '';
+  appConfig.panels.slice(0, l.show).forEach((p, i) => {
+    if (i > 0) statusLegend.appendChild(document.createTextNode('\u00A0\u00A0'));
+    const span = document.createElement('span');
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = p.color;
+    span.appendChild(dot);
+    span.appendChild(document.createTextNode(p.name));
+    statusLegend.appendChild(span);
+  });
 }
 
+let clockIntervalId = null;
+
 export function startClock() {
+  if (clockIntervalId) clearInterval(clockIntervalId);
   const clock = document.getElementById('clock');
   const layoutPicker = document.getElementById('layoutPicker');
-  setInterval(() => {
+  clockIntervalId = setInterval(() => {
     const activeBtn = layoutPicker ? layoutPicker.querySelector('.layout-icon.active') : null;
     const key = activeBtn ? activeBtn.dataset.layout : '4-quad';
     const l = layouts[key] || layouts['4-quad'];

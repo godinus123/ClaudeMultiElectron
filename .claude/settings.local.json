@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx electron:*)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(grep -r \"eval\\\\|innerHTML\\\\|dangerouslySetInnerHTML\\\\|http:\" /c/WindowsApp/ClaudeMultiElectron/renderer --include=*.js --include=*.html)",
+      "Bash(grep -r \"executeJavaScript\\\\|loadURL\\\\|src\\\\|protocol\" /c/WindowsApp/ClaudeMultiElectron/*.js /c/WindowsApp/ClaudeMultiElectron/renderer/**/*.js)",
+      "Bash(grep -r \"new-window\\\\|will-navigate\\\\|did-navigate\\\\|new Function\\\\|eval\\\\|Function\\(\" /c/WindowsApp/ClaudeMultiElectron/*.js /c/WindowsApp/ClaudeMultiElectron/renderer/**/*.js)",
+      "Bash(grep:*)"
+    ]
+  }
+}

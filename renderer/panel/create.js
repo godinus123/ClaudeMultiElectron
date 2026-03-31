@@ -1,11 +1,19 @@
 /**
  * @file    create.js
- * @desc    패널 생성 + 헤더 버튼
+ * @desc    패널 생성 — 헤더 버튼, 주소창, webview, 드롭 존
  * @owner   안목
- * @version 1.0.0
+ * @version 1.1.0
  * @date    2026-03-31
- * @depends state.js, config.js
+ * @depends state.js, reset.js, login.js, apply.js, grab.js, drop-to.js, relay.js, drop.js, settings.js, statusbar.js
  * @exports createPanel, renderPanels
+ *
+ * 블록 구조:
+ *   1. 패널 컨테이너
+ *   2. 헤더 (뱃지, 타이틀, 주소창, 버튼들)
+ *   3. webview (claude.ai 로드, 로그인 감지, 포커스 스왑)
+ *   4. 주소창 (URL 입력 + 자동 갱신)
+ *   5. 드롭 존 (드래그앤드롭 오버레이)
+ *   6. DOM 조립
  */
 
 import { appConfig } from '../core/state.js';
@@ -20,34 +28,41 @@ import { openSettings } from '../ui/settings.js';
 import { renderLegend } from '../ui/statusbar.js';
 
 export function createPanel(def) {
+
+  // ── 1. 패널 컨테이너 ──────────────────────────
   const panel = document.createElement('div');
   panel.className = 'panel';
   panel.dataset.id = String(def.id);
   panel.style.borderColor = def.color;
 
+  // ── 2. 헤더 + 버튼들 ──────────────────────────
   const header = document.createElement('div');
   header.className = 'panel-header';
 
+  // 뱃지 (번호, 클릭 → 액티브 스왑)
   const badge = document.createElement('span');
   badge.className = 'badge';
   badge.textContent = String(def.id);
   badge.style.background = def.color;
   badge.style.cursor = 'pointer';
-  badge.title = '클릭하면 액티브 윈도우로 전환';
+  badge.title = '클릭 → 액티브 윈도우로 전환';
   badge.addEventListener('click', () => swapWithActive(def.id));
 
+  // 타이틀 (닉네임, 클릭 → 액티브 스왑)
   const title = document.createElement('span');
   title.className = 'panel-title';
   title.textContent = def.name;
   title.style.cursor = 'pointer';
   title.addEventListener('click', () => swapWithActive(def.id));
 
+  // 설정 버튼
   const settingsBtn = document.createElement('button');
   settingsBtn.className = 'panel-btn';
   settingsBtn.textContent = '⚙';
   settingsBtn.title = '패널 설정';
   settingsBtn.addEventListener('click', () => openSettings(def.id));
 
+  // 클립보드 잡기/놓기
   const grabBtn = document.createElement('button');
   grabBtn.className = 'panel-grab';
   grabBtn.textContent = '📋잡기';
@@ -58,22 +73,22 @@ export function createPanel(def) {
   dropBtn.textContent = '📥놓기';
   dropBtn.addEventListener('click', () => dropToPanel(def.id));
 
+  // 초기화
   const resetBtn = document.createElement('button');
   resetBtn.className = 'panel-btn';
   resetBtn.textContent = '↺';
   resetBtn.addEventListener('click', () => resetPanel(def.id));
 
+  // 응답 전달 드롭다운
   const relaySelect = document.createElement('select');
   relaySelect.className = 'panel-relay';
   relaySelect.title = '응답 전달';
-
   const defaultOpt = document.createElement('option');
   defaultOpt.value = '';
   defaultOpt.textContent = '➡';
   defaultOpt.disabled = true;
   defaultOpt.selected = true;
   relaySelect.appendChild(defaultOpt);
-
   appConfig.panels.forEach(target => {
     if (target.id === def.id) return;
     const opt = document.createElement('option');
@@ -81,40 +96,74 @@ export function createPanel(def) {
     opt.textContent = `→ ${target.id} ${target.name}`;
     relaySelect.appendChild(opt);
   });
-
-  relaySelect.addEventListener('change', () => {
+  let relayResetting = false;
+  relaySelect.addEventListener('change', async () => {
+    if (relayResetting) return;
     const targetId = Number(relaySelect.value);
     if (targetId) {
-      relayResponse(def.id, targetId);
+      await relayResponse(def.id, targetId);
+      relayResetting = true;
       relaySelect.selectedIndex = 0;
+      relayResetting = false;
     }
   });
 
+  // ── 3. webview ─────────────────────────────────
   const wv = document.createElement('webview');
   wv.src = appConfig.url;
   wv.setAttribute('partition', 'persist:claude');
   wv.style.borderLeftColor = def.color;
 
   setupLoginDetect(wv);
-
-  // 스몰 윈도우 클릭 → 자동으로 액티브(큰 윈도우)로 스왑
   wv.addEventListener('focus', () => swapWithActive(def.id));
 
-  // 드롭 존
+  // ── 4. 주소창 ──────────────────────────────────
+  const urlBar = document.createElement('input');
+  urlBar.className = 'panel-url';
+  urlBar.type = 'text';
+  urlBar.value = appConfig.url || '';
+  urlBar.placeholder = 'URL 입력...';
+  urlBar.spellcheck = false;
+
+  urlBar.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      let url = urlBar.value.trim();
+      if (!url) return;
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+      // main 프로세스에서 URL 화이트리스트 검증
+      if (window.electronAPI) {
+        const result = await window.electronAPI.validateUrl(url);
+        if (!result.allowed) {
+          urlBar.style.borderColor = '#ff7b72';
+          urlBar.title = result.reason || '차단됨';
+          setTimeout(() => { urlBar.style.borderColor = ''; urlBar.title = ''; }, 2000);
+          return;
+        }
+      }
+      try { wv.loadURL(url); } catch { wv.src = url; }
+    }
+  });
+  wv.addEventListener('did-navigate', (e) => { if (e && e.url) urlBar.value = e.url; });
+  wv.addEventListener('did-navigate-in-page', (e) => { if (e && e.url) urlBar.value = e.url; });
+
+  // ── 5. 드롭 존 오버레이 ────────────────────────
   const dropHint = document.createElement('span');
   dropHint.className = 'drop-hint';
 
   const dropOverlay = document.createElement('div');
   dropOverlay.className = 'drop-overlay';
   dropOverlay.innerHTML = '<div class="drop-overlay-text">📥 여기에 놓기</div>';
-
   dropOverlay.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'copy'; });
   dropOverlay.addEventListener('dragleave', e => { e.preventDefault(); e.stopPropagation(); dropOverlay.classList.remove('visible'); });
   dropOverlay.addEventListener('drop', e => { e.preventDefault(); e.stopPropagation(); dropOverlay.classList.remove('visible'); handleDrop(e.dataTransfer, def.id, wv, dropHint); });
   panel.addEventListener('dragenter', e => { e.preventDefault(); dropOverlay.classList.add('visible'); });
 
+  // ── 6. DOM 조립 ────────────────────────────────
   header.appendChild(badge);
   header.appendChild(title);
+  header.appendChild(urlBar);
   header.appendChild(dropHint);
   header.appendChild(settingsBtn);
   header.appendChild(grabBtn);

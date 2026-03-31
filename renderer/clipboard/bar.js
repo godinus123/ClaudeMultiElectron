@@ -107,7 +107,11 @@ export function setupClipboardBar() {
       let text = e.dataTransfer.getData('text/plain');
       if (!text) {
         const html = e.dataTransfer.getData('text/html');
-        if (html) { const tmp = document.createElement('div'); tmp.innerHTML = html; text = tmp.textContent || ''; }
+        if (html) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          text = doc.body ? doc.body.textContent || '' : '';
+        }
       }
       if (text && text.trim()) { textEl.value = text.trim(); renderClipboardPreview(); refreshDropButtons(); }
     });

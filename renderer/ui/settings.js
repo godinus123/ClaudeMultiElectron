@@ -13,6 +13,7 @@ import { COLORS } from '../core/config.js';
 import { renderLegend } from './statusbar.js';
 
 export function openSettings(panelId) {
+  closeSettings();
   setEditingPanelId(panelId);
   const p = appConfig.panels.find(x => x.id === panelId);
   if (!p) return;
@@ -47,6 +48,7 @@ export function openSettings(panelId) {
   const colorsDiv = document.getElementById('modalColors');
   colorsDiv.innerHTML = '';
   COLORS.forEach(c => {
+    if (!/^#[0-9a-fA-F]{3,8}$/.test(c)) return;
     const swatch = document.createElement('div');
     swatch.className = 'color-swatch' + (c === p.color ? ' selected' : '');
     swatch.style.background = c;
@@ -67,7 +69,7 @@ function saveSettings() {
 
   p.name = document.getElementById('modalNickname').value.trim() || '패널 ' + p.id;
   const sel = document.querySelector('.color-swatch.selected');
-  if (sel) p.color = sel.dataset.color;
+  if (sel && COLORS.includes(sel.dataset.color)) p.color = sel.dataset.color;
 
   // DOM 반영
   const allPanels = [...document.querySelectorAll('.panel')];

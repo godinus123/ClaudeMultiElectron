@@ -11,6 +11,11 @@ import { appConfig } from '../core/state.js';
 import { layouts } from '../layout/layouts.js';
 
 export function broadcastToPanel(wv, text) {
+  // 권고: 길이 제한만 적용 (최대 50000자)
+  try { if (typeof text !== 'string') text = String(text); } catch (e) { text = ''; }
+  const MAX_LEN = 50000;
+  const SUFFIX = '\n\n[...글자 제한]';
+  if (text.length > MAX_LEN) text = text.substring(0, MAX_LEN - SUFFIX.length) + SUFFIX;
   const escaped = JSON.stringify(text);
   const script = `
     (function() {
@@ -39,10 +44,13 @@ export function broadcastToPanel(wv, text) {
       return true;
     })();
   `;
-  return wv.executeJavaScript(script).catch(() => {});
+  return wv.executeJavaScript(script).catch(err => {
+    console.error('broadcastToPanel error:', err);
+    return false;
+  });
 }
 
-export function broadcastAll() {
+export async function broadcastAll() {
   const bcTarget = document.getElementById('bcTarget');
   const broadcastInput = document.getElementById('broadcastInput');
   const text = (broadcastInput.value || '').trim();
@@ -53,10 +61,13 @@ export function broadcastAll() {
   const grid = document.getElementById('grid');
 
   if (target !== 'all') {
-    const panel = [...grid.querySelectorAll('.panel')].find(p => p.dataset.id === target);
+    const hidden = document.getElementById('hiddenPanels');
+    const all = [...grid.querySelectorAll('.panel')];
+    if (hidden) all.push(...hidden.querySelectorAll('.panel'));
+    const panel = all.find(p => p.dataset.id === target);
     if (panel) {
       const wv = panel.querySelector('webview');
-      if (wv) broadcastToPanel(wv, text);
+      if (wv) await broadcastToPanel(wv, text);
     }
     return;
   }
@@ -65,7 +76,7 @@ export function broadcastAll() {
   const l = layouts[layoutSelect.value] || layouts['4-quad'];
   const activePanels = [...grid.querySelectorAll('.panel')].slice(0, l.show);
 
-  activePanels.reduce((promise, panel) => {
+  await activePanels.reduce((promise, panel) => {
     return promise.then(() => {
       const wv = panel.querySelector('webview');
       if (!wv) return;

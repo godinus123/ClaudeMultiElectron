@@ -12,7 +12,10 @@ import { appConfig } from '../core/state.js';
 
 export function resetPanel(id) {
   const grid = document.getElementById('grid');
-  const panel = [...grid.querySelectorAll('.panel')].find(x => Number(x.dataset.id) === id);
+  const hidden = document.getElementById('hiddenPanels');
+  const all = [...grid.querySelectorAll('.panel')];
+  if (hidden) all.push(...hidden.querySelectorAll('.panel'));
+  const panel = all.find(x => Number(x.dataset.id) === id);
   if (!panel) return;
   const wv = panel.querySelector('webview');
   if (!wv) return;

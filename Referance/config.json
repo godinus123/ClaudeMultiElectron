@@ -1,0 +1,15 @@
+{
+  "panels": [
+    { "id": 1, "name": "프론트봇", "color": "#1f6feb" },
+    { "id": 2, "name": "백엔드봇", "color": "#3fb950" },
+    { "id": 3, "name": "테스터", "color": "#a371f7" },
+    { "id": 4, "name": "문서봇", "color": "#d29922" },
+    { "id": 5, "name": "디버거", "color": "#ff7b72" },
+    { "id": 6, "name": "인프라", "color": "#39d353" },
+    { "id": 7, "name": "리서치", "color": "#58a6ff" },
+    { "id": 8, "name": "리뷰어", "color": "#e3b341" },
+    { "id": 9, "name": "기타", "color": "#e6edf3" }
+  ],
+  "defaultLayout": "4-quad",
+  "url": "https://claude.ai"
+}

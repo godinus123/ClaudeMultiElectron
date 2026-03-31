@@ -10,6 +10,9 @@
 
 import { broadcastToPanel } from './broadcast.js';
 
+const MAX_EXTRACT_LEN = 50000;
+const MAX_RELAY_PREVIEW = 8000;
+
 const extractScript = `
   (function() {
     var candidates = [
@@ -34,14 +37,16 @@ const extractScript = `
 export async function extractLatestResponseFromPanel(panelId) {
   const grid = document.getElementById('grid');
   const hidden = document.getElementById('hiddenPanels');
-  const all = [...grid.querySelectorAll('.panel'), ...hidden.querySelectorAll('.panel')];
+  const all = [...grid.querySelectorAll('.panel')];
+  if (hidden) all.push(...hidden.querySelectorAll('.panel'));
   const panel = all.find(p => p.dataset.id === String(panelId));
   if (!panel) return '';
   const wv = panel.querySelector('webview');
   if (!wv) return '';
   try {
-    const text = await wv.executeJavaScript(extractScript);
-    return String(text || '').trim();
+    const text = await wv.executeJavaScript(extractScript).catch(() => '');
+    const result = String(text || '').trim();
+    return result.length > MAX_EXTRACT_LEN ? result.substring(0, MAX_EXTRACT_LEN) : result;
   } catch {
     return '';
   }
@@ -54,10 +59,13 @@ export async function relayResponse(fromPanelId, toPanelId) {
     return;
   }
   const grid = document.getElementById('grid');
-  const toPanel = [...grid.querySelectorAll('.panel')].find(p => p.dataset.id === String(toPanelId));
+  const hidden = document.getElementById('hiddenPanels');
+  const allPanels = [...grid.querySelectorAll('.panel')];
+  if (hidden) allPanels.push(...hidden.querySelectorAll('.panel'));
+  const toPanel = allPanels.find(p => p.dataset.id === String(toPanelId));
   if (!toPanel) return;
   const toWv = toPanel.querySelector('webview');
   if (!toWv) return;
-  const payload = `[패널${fromPanelId} 응답 전달]\n${text.slice(0, 8000)}`;
+  const payload = `[패널${fromPanelId} 응답 전달]\n${text.slice(0, MAX_RELAY_PREVIEW)}`;
   await broadcastToPanel(toWv, payload);
 }

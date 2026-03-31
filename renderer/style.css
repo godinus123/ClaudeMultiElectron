@@ -473,3 +473,105 @@ webview {
 .btn-cancel { background: #21262d; color: #8b949e; }
 .btn-cancel:hover { background: #30363d;
 }
+/* ══ 패널 주소창 ═══════════════════════════════════ */
+.panel-url {
+  flex: 1;
+  min-width: 100px;
+  max-width: 400px;
+  height: 20px;
+  background: #0d1117;
+  color: #8b949e;
+  border: 1px solid #30363d;
+  border-radius: 3px;
+  padding: 0 6px;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 10px;
+  outline: none;
+}
+
+.panel-url:focus {
+  color: #e6edf3;
+  border-color: #1f6feb;
+  background: #161b22;
+}
+
+.panel-url:hover {
+  border-color: #484f58;
+}
+
+/* 주소창이 있으면 패널 타이틀 너비 제한 */
+.panel-header .panel-title {
+  flex: none;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══ Help/About 모달 ═══════════════════════════════ */
+.toolbar-btn {
+  background: #21262d;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.toolbar-btn:hover { background: #30363d; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 28px 36px;
+  color: #e6edf3;
+  min-width: 380px;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-box h2 { margin: 0 0 4px; font-size: 18px; }
+.modal-box .version { color: #8b949e; font-size: 13px; }
+.modal-box .author { color: #8b949e; font-size: 12px; margin: 0 0 16px; }
+
+.modal-box .help-section { margin-bottom: 14px; }
+.modal-box .help-section h3 {
+  font-size: 13px; color: #58a6ff; margin: 0 0 6px;
+  border-bottom: 1px solid #21262d; padding-bottom: 4px;
+}
+.modal-box .help-section ul {
+  margin: 0; padding: 0 0 0 18px; font-size: 12px; color: #c9d1d9; line-height: 1.8;
+}
+.modal-box .help-section li b { color: #e6edf3; }
+
+.modal-box .help-diagram {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+  color: #8b949e;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.modal-box .github-link a { color: #58a6ff; text-decoration: none; font-size: 13px; }
+.modal-box .github-link a:hover { text-decoration: underline; }
+.modal-box .trust-msg { color: #3fb950; font-size: 11px; margin: 4px 0 16px; }
+
+.modal-close {
+  padding: 6px 24px;
+  background: #21262d; color: #e6edf3;
+  border: 1px solid #30363d; border-radius: 4px;
+  cursor: pointer; display: block; margin: 0 auto;
+}
+.modal-close:hover { background: #30363d; }

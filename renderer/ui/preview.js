@@ -24,6 +24,9 @@ export function renderClipboardPreview() {
   }
   preview.innerHTML = '';
   if (isImageUrl(val)) {
-    preview.innerHTML = '<img src="' + val + '" style="max-width:180px;max-height:120px;border:1px solid #30363d;margin:6px 0;">';
+    const img = document.createElement('img');
+    img.src = val;
+    img.style.cssText = 'max-width:180px;max-height:120px;border:1px solid #30363d;margin:6px 0;';
+    preview.appendChild(img);
   }
 }
