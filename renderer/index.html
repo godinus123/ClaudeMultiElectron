@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Claude Multi - Browser Embed</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="toolbar">
+    <span class="title">■ Claude Multi</span>
+    <div class="sep"></div>
+    <button id="resetAllBtn">↻ 전체 초기화</button>
+    <div class="sep"></div>
+    <span class="label">레이아웃</span>
+    <div class="layout-picker" id="layoutPicker"></div>
+    <select id="layout" class="hidden-select" aria-hidden="true">
+      <option value="1-full">1-전체</option>
+      <option value="2-side">2-좌우</option>
+      <option value="2-vert">2-상하</option>
+      <option value="4-quad">4-쿼드</option>
+      <option value="6-grid">6-2×3</option>
+      <option value="9-grid">9-채널</option>
+      <option value="1+3-right">액티브+우3</option>
+      <option value="1+3-bottom">액티브+하3</option>
+      <option value="3+1-left">좌3+액티브</option>
+    </select>
+    <div class="sep"></div>
+    <span class="hint">로그인 1회 유지 (shared partition)</span>
+  </div>
+
+  <div class="clipboard-bar" id="clipboardBar">
+    <div class="clipboard-header" id="clipboardHeader">
+      <span class="clipboard-label">📋 클립보드</span>
+      <span class="clipboard-source" id="clipboardSource">[비어있음]</span>
+      <div class="spacer"></div>
+      <button class="clipboard-btn" id="clipboardClearBtn" style="display:none;">지우기</button>
+      <button class="clipboard-btn" id="clipboardToggleBtn">▼</button>
+    </div>
+    <div class="clipboard-drop-overlay" id="clipboardDropOverlay">
+      <div class="drop-overlay-text">📥 여기에 드롭<br><span style="font-size:11px;color:#8b949e;">텍스트, 파일, 이미지</span></div>
+    </div>
+    <div class="clipboard-body" id="clipboardBody" style="display:none;">
+      <textarea id="clipboardText" placeholder="패널 헤더의 [📋잡기]로 응답을 가져오세요..."></textarea>
+    </div>
+  </div>
+
+  <div class="broadcast-bar">
+    <span class="bc-label">📢</span>
+    <select id="bcTarget">
+      <option value="all">전체</option>
+    </select>
+    <span class="bc-arrow">→</span>
+    <input id="broadcastInput" type="text" placeholder="모든 패널에 보낼 메시지를 입력" />
+    <button id="broadcastBtn">전송</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div id="hiddenPanels" style="position:absolute;left:-9999px;width:0;height:0;overflow:hidden;"></div>
+
+  <div class="statusbar">
+    <div id="statusLegend"></div>
+    <span id="clock"></span>
+  </div>
+
+  <script type="module" src="./core/app.js"></script>
+</body>
+</html>
